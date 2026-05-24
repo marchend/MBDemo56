@@ -26,10 +26,23 @@ targets:
     settings:
       base:
         SWIFT_VERSION: "5.10"
+        GENERATE_INFOPLIST_FILE: YES
+  AcmeBankUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [AcmeBankUITests]
+    dependencies:
+      - target: AcmeBank
+    settings:
+      base:
+        SWIFT_VERSION: "5.10"
+        GENERATE_INFOPLIST_FILE: YES
 schemes:
   AcmeBank:
     build:
       targets:
         AcmeBank: all
     test:
-      targets: [AcmeBankTests]
+      targets:
+        - AcmeBankTests
+        - AcmeBankUITests

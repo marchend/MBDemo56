@@ -52,7 +52,7 @@ AcmeBank/
   Features/Transfer/      # (future)
   Features/Cards/         # (future)
   DesignSystem/           # Colors.swift, Typography.swift, Assets.xcassets
-  Resources/              # Localizable.strings
+  Resources/              # Assets.xcassets (AcmeBankLogo), Localizable.strings
 AcmeBankTests/            # XCTest unit tests mirroring app structure
 AcmeBankUITests/          # XCUITest critical-flow tests (login, transfer, sign-out)
 ```
@@ -95,27 +95,38 @@ AcmeBankUITests/          # XCUITest critical-flow tests (login, transfer, sign-
 ### CI (deferred — future PR)
 `ios-build.yml`: `xcodebuild test`, SwiftLint, `-warnings-as-errors`, xcconfig secret injection.
 
-### XCUITest (deferred — future PR)
+### XCUITest
 `AcmeBankUITests/` target; critical flows: login, transfer confirmation, sign-out.
 Uses `launchArguments += ["-UITestMode", "YES"]` to swap in mock repositories.
 
-## Implemented in This PR
+## Implemented
+
+### Bootstrap PR
 - `project.yml` XcodeGen spec ✅
 - `AcmeBank/App/AcmeBankApp.swift` — `@main` SwiftUI entry ✅
 - `AcmeBank/App/ContentView.swift` — Hello World placeholder view ✅
 - `AcmeBankTests/AcmeBankTests.swift` — bootstrap proof-of-life test ✅
 - `setup.sh`, `.gitignore` ✅
 
+### PR 1 — Login Screen UI (MD056-3)
+- `AcmeBank/Features/Login/LoginViewModel.swift` — ObservableObject with `username`, `password`, `isSignInEnabled`, `attemptSignIn()` ✅
+- `AcmeBank/Features/Login/LoginView.swift` — SwiftUI login screen with accessibility identifiers ✅
+- `AcmeBank/Features/Login/LoginView+Previews.swift` — light/dark/accessibility-size previews ✅
+- `AcmeBank/Resources/Assets.xcassets/AcmeBankLogo.imageset/` — logo image asset ✅
+- `AcmeBank/App/AcmeBankApp.swift` — wired `LoginView` as root (replaced `ContentView`) ✅
+- `AcmeBankTests/Features/Login/LoginViewModelTests.swift` — 6 unit tests ✅
+- `AcmeBankUITests/Features/Login/LoginViewUITests.swift` — 4 XCUITest cases ✅
+- `project.yml` — added `AcmeBankUITests` target + scheme entry ✅
+
 ## Deferred Work
-- Authentication / Okta OIDC integration
+- Real Okta OIDC `signIn` closure wiring (follow-on story)
 - RootView + AppCoordinator (auth-state switching)
-- All feature screens (Login, Home, Accounts, Transfer, Cards)
+- Home, Accounts, Transfer, Cards screens
 - Networking layer (APIClient, APIRouter, RequestInterceptor)
 - Domain models and repository protocols
 - Remote and mock repository implementations
-- Design system (Colors, Typography, Assets)
+- Design system (Colors, Typography)
 - Internal notification infrastructure
-- XCUITest target and critical-flow tests
 - SwiftLint configuration
 - CI pipeline (ios-build.yml)
 - Keychain store
