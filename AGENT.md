@@ -98,6 +98,8 @@ AcmeBankUITests/          # XCUITest critical-flow tests (login, transfer, sign-
 ### XCUITest
 `AcmeBankUITests/` target; critical flows: login, transfer confirmation, sign-out.
 Uses `launchArguments += ["-UITestMode", "YES"]` to swap in mock repositories.
+The login screen also honors `-UITestShowErrorBanner` to pre-populate
+`LoginViewModel.errorMessage` so XCUITest can assert the inline error banner without an auth backend.
 
 ## Implemented
 
@@ -117,6 +119,12 @@ Uses `launchArguments += ["-UITestMode", "YES"]` to swap in mock repositories.
 - `AcmeBankTests/Features/Login/LoginViewModelTests.swift` — 6 unit tests ✅
 - `AcmeBankUITests/Features/Login/LoginViewUITests.swift` — 4 XCUITest cases ✅
 - `project.yml` — added `AcmeBankUITests` target + scheme entry ✅
+
+### PR 1 — Login Screen UI completion (MD056-4)
+- `LoginViewModel` — `onSignIn` widened to `(String, String, Bool) -> Void`; added `@Published keepSignedIn` and `@Published errorMessage` ✅
+- `LoginView` — added "Keep me signed in" `Toggle` (id `login_keep_signed_in_toggle`) and inline red error banner (id `login.errorBanner`) ✅
+- `AcmeBankApp` — honors `-UITestShowErrorBanner` launch arg to pre-set `errorMessage` for XCUITest ✅
+- Unit + XCUITest coverage extended for the new closure signature, toggle, and banner ✅
 
 ## Deferred Work
 - Real Okta OIDC `signIn` closure wiring (follow-on story)

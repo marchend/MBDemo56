@@ -50,8 +50,31 @@ struct LoginView: View {
                             .fill(Color(.secondarySystemBackground))
                     )
                     .padding(.horizontal, 24)
-                    .padding(.bottom, 32)
+                    .padding(.bottom, 16)
                     .accessibilityIdentifier("login_password_field")
+
+                // Inline error banner — visible only when errorMessage is non-nil.
+                if let errorMessage = viewModel.errorMessage {
+                    Text(errorMessage)
+                        .font(.footnote)
+                        .foregroundStyle(.white)
+                        .multilineTextAlignment(.leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.red)
+                        )
+                        .padding(.horizontal, 24)
+                        .padding(.bottom, 16)
+                        .accessibilityIdentifier("login.errorBanner")
+                }
+
+                // Keep me signed in toggle
+                Toggle("Keep me signed in", isOn: $viewModel.keepSignedIn)
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 32)
+                    .accessibilityIdentifier("login_keep_signed_in_toggle")
 
                 // Sign In button
                 Button(action: viewModel.attemptSignIn) {
