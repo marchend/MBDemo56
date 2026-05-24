@@ -76,6 +76,56 @@ final class LoginViewModelTests: XCTestCase {
                        "onSignIn closure should NOT be invoked when fields are empty")
     }
 
+    // MARK: - Credential lifetime hardening
+
+    func test_attemptSignIn_zerosCredentialFieldsAfterHandoff() {
+        let sut = LoginViewModel { _, _, _ in }
+        sut.username = "user@acmebank.com"
+        sut.password = "s3cr3tP@ss"
+        sut.keepSignedIn = true
+
+        sut.attemptSignIn()
+
+        XCTAssertEqual(sut.username, "",
+                       "username should be zeroed after onSignIn handoff to limit plaintext lifetime")
+        XCTAssertEqual(sut.password, "",
+                       "password should be zeroed after onSignIn handoff to limit plaintext lifetime")
+    }
+
+    func test_attemptSignIn_closureStillReceivesCredentialsEvenThoughFieldsAreZeroed() {
+        // Locks in that the snapshot-then-zero ordering doesn't break the
+        // hand-off contract: the closure must see the typed values.
+        var receivedUsername: String?
+        var receivedPassword: String?
+        let sut = LoginViewModel { username, password, _ in
+            receivedUsername = username
+            receivedPassword = password
+        }
+        sut.username = "user@acmebank.com"
+        sut.password = "s3cr3tP@ss"
+
+        sut.attemptSignIn()
+
+        XCTAssertEqual(receivedUsername, "user@acmebank.com")
+        XCTAssertEqual(receivedPassword, "s3cr3tP@ss")
+        XCTAssertEqual(sut.username, "")
+        XCTAssertEqual(sut.password, "")
+    }
+
+    func test_attemptSignIn_doesNotZeroFieldsWhenDisabled() {
+        // If the guard rejects the call, the user's in-progress input
+        // should not be cleared out from under them.
+        let sut = LoginViewModel { _, _, _ in }
+        sut.username = "user@acmebank.com"
+        // password intentionally empty -> isSignInEnabled == false
+
+        sut.attemptSignIn()
+
+        XCTAssertEqual(sut.username, "user@acmebank.com",
+                       "username must be preserved when attemptSignIn is a no-op")
+        XCTAssertEqual(sut.password, "")
+    }
+
     // MARK: - keepSignedIn
 
     func test_keepSignedIn_defaultsToFalse() {

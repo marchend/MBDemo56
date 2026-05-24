@@ -27,6 +27,17 @@ final class LoginViewModel: ObservableObject {
 
     func attemptSignIn() {
         guard isSignInEnabled else { return }
-        onSignIn(username, password, keepSignedIn)
+        // Snapshot the credentials, then zero the `@Published` fields
+        // before handing off to `onSignIn`. This minimises how long the
+        // plain-text password lingers on the heap — important for a
+        // banking app, and much harder to retrofit once the follow-up
+        // Okta call introduces an `await` point between the snapshot
+        // and the network request.
+        let capturedUsername = username
+        let capturedPassword = password
+        let capturedKeepSignedIn = keepSignedIn
+        username = ""
+        password = ""
+        onSignIn(capturedUsername, capturedPassword, capturedKeepSignedIn)
     }
 }
